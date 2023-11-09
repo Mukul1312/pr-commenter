@@ -13,3 +13,11 @@ npm run start
 ```
 
 ## Demo
+
+
+https://github.com/Mukul1312/codemate-assignment/assets/84818958/67975de1-df56-42ca-b14d-02efe4ca7d06
+
+
+
+## Summary Report
+It was quite an amazing experience to build a GitHub app. 
