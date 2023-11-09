@@ -7,6 +7,7 @@ const createPrompt = require("./llm");
 module.exports = triggerPR;
 
 function triggerPR(app) {
+  
   app.on("pull_request.opened", triggerCommandAndCommentResult);
 
   async function triggerCommandAndCommentResult(context) {
@@ -16,7 +17,6 @@ function triggerPR(app) {
 
     if (executableCommand) {
       const result = await executeCommand(executableCommand, context);
-      // write the result to the comment of the PR
       context.log(result);
       const comment = context.issue({
         body: `${result}`,
@@ -27,7 +27,6 @@ function triggerPR(app) {
 
   function findCommandFromPullRequestDescription(description) {
     // Initially We will only support 2 commmands. /execute and /explain
-    // We will use regex to find the command
     const executeCommandRegex = /\/execute/i;
     const explainCommandRegex = /\/explain/i;
 
@@ -45,7 +44,7 @@ function triggerPR(app) {
   async function executeCommand(command, context) {
     if (command === "execute") {
       const files = await pullFilesChanged(context);
-
+      // PISTON API Has to be implemented
       return "Executing the command";
     }
 
