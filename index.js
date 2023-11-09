@@ -1,21 +1,50 @@
 /**
- * This is the main entrypoint to your Probot app
+ * This is the main entrypoint
  * @param {import('probot').Probot} app
  */
-module.exports = (app) => {
-  // Your code here
-  app.log.info("Yay, the app was loaded!");
+module.exports = triggerPR;
 
-  app.on("issues.opened", async (context) => {
-    const issueComment = context.issue({
-      body: "Thanks for opening this issue!",
-    });
-    return context.octokit.issues.createComment(issueComment);
-  });
+ function triggerPR (app)  {
+  app.on("pull_request.opened", triggerCommandAndCommentResult);
 
-  // For more information on building apps:
-  // https://probot.github.io/docs/
+  async function triggerCommandAndCommentResult(context) {
+    const executableCommand = findCommandFromPullRequestDescription(
+      context.payload.pull_request.body
+    );
 
-  // To get your app running against GitHub, see:
-  // https://probot.github.io/docs/development/
+    if (executableCommand) {
+      const result = await executeCommand(executableCommand);
+      const comment = context.issue({
+        body: result,
+      });
+      return context.octokit.issues.createComment(comment);
+    }
+  }
+
+  function findCommandFromPullRequestDescription(description) {
+    // Initially We will only support 2 commmands. /execute and /explain
+    // We will use regex to find the command
+    const executeCommandRegex = /\/execute/i;
+    const explainCommandRegex = /\/explain/i;
+
+    if (executeCommandRegex.test(description)) {
+      return "execute";
+    }
+
+    if (explainCommandRegex.test(description)) {
+      return "explain";
+    }
+
+    return null;
+  }
+
+  async function executeCommand(command) {
+    if (command === "execute") {
+      return "Executing the command";
+    }
+
+    if (command === "explain") {
+      return "Explaining the command";
+    }
+  }
 };
