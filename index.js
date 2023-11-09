@@ -2,9 +2,11 @@
  * This is the main entrypoint
  * @param {import('probot').Probot} app
  */
+const createPrompt = require("./llm");
+
 module.exports = triggerPR;
 
- function triggerPR (app)  {
+function triggerPR(app) {
   app.on("pull_request.opened", triggerCommandAndCommentResult);
 
   async function triggerCommandAndCommentResult(context) {
@@ -13,9 +15,11 @@ module.exports = triggerPR;
     );
 
     if (executableCommand) {
-      const result = await executeCommand(executableCommand);
+      const result = await executeCommand(executableCommand, context);
+      // write the result to the comment of the PR
+      context.log(result);
       const comment = context.issue({
-        body: result,
+        body: `${result}`,
       });
       return context.octokit.issues.createComment(comment);
     }
@@ -38,13 +42,34 @@ module.exports = triggerPR;
     return null;
   }
 
-  async function executeCommand(command) {
+  async function executeCommand(command, context) {
     if (command === "execute") {
+      const files = await pullFilesChanged(context);
+
       return "Executing the command";
     }
 
     if (command === "explain") {
-      return "Explaining the command";
+      const files = await pullFilesChanged(context);
+
+      const responseFromLLM = await createPrompt({
+        numberOfCommits: files.data.length,
+        patchesArray: files.data.map((file) => file.patch),
+      });
+
+      const message = responseFromLLM.message;
+      const content = message["content"];
+      return content;
     }
   }
-};
+
+  async function pullFilesChanged(context) {
+    const files = await context.octokit.pulls.listFiles({
+      owner: context.payload.repository.owner.login,
+      repo: context.payload.repository.name,
+      pull_number: context.payload.pull_request.number,
+    });
+
+    return files;
+  }
+}
