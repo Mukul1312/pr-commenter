@@ -7,23 +7,16 @@ const createPrompt = require("./llm");
 module.exports = triggerPR;
 
 function triggerPR(app) {
-  app.on(
-    ["pull_request.opened", "pull_request.edited", "pull_request.synchronize"],
-    triggerCommandAndCommentResult
-  );
+  app.on(["pull_request.opened", "pull_request.edited", "pull_request.synchronize"], triggerCommandAndCommentResult);
 
   async function triggerCommandAndCommentResult(context) {
     let commandsArr = [];
 
-    const commandsFromPRDescription = getCommands(
-      context.payload.pull_request.body
-    );
+    const commandsFromPRDescription = getCommands(context.payload.pull_request.body);
 
     const commitMessagesList = await getCommitMessages(context);
 
-    const commandsFromCommitMessages = commitMessagesList.map((commitMessage) =>
-      getCommands(commitMessage)
-    );
+    const commandsFromCommitMessages = commitMessagesList.map((commitMessage) => getCommands(commitMessage));
 
     commandsArr = [...commandsFromPRDescription, ...commandsFromCommitMessages]
       .flat()
@@ -44,12 +37,34 @@ function triggerPR(app) {
     }
 
     commandsArr.forEach(async (command) => {
-      const result = await executeCommand(command, context);
-      context.log(result);
-      const comment = context.issue({
-        body: `${result}`,
-      });
-      return context.octokit.issues.createComment(comment);
+      const preliminaryComment = `The code ${
+        command === "explain" ? "explanation" : "execution"
+      } is being processed. Please wait...`;
+
+      const preliminaryCommentResponse = await context.octokit.issues.createComment(
+        context.repo({
+          issue_number: context.payload.pull_request.number,
+          body: preliminaryComment,
+        })
+      );
+
+      try {
+        const result = await executeCommand(command, context);
+
+        await context.octokit.issues.updateComment(
+          context.repo({
+            comment_id: preliminaryCommentResponse.data.id,
+            body: `${result}`,
+          })
+        );
+      } catch (error) {
+        await context.octokit.issues.updateComment(
+          context.repo({
+            comment_id: preliminaryCommentResponse.data.id,
+            body: `There was an error while executing the command. Please try again later.`,
+          })
+        );
+      }
     });
   }
 
@@ -61,9 +76,7 @@ function triggerPR(app) {
     });
 
     // Extract commit messages
-    const commitMessagesList = commits.data.map(
-      (commit) => commit["commit"]["message"]
-    );
+    const commitMessagesList = commits.data.map((commit) => commit["commit"]["message"]);
     // context.log(commitMessages);
 
     return commitMessagesList;
