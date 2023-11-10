@@ -5,6 +5,7 @@
 
 const createPrompt = require("./api/openai");
 const getCommands = require("./utils/getCommands");
+
 const {
   fetchPullRequestCommits,
   fetchPullRequestComments,
@@ -12,6 +13,8 @@ const {
   postComment,
   updateComment,
 } = require("./api/github");
+
+const getOptmizedPrompt = require('./prompt/llm-prompt');
 
 module.exports = triggerPR;
 
@@ -45,16 +48,15 @@ function triggerPR(app) {
         return uniqueCommands;
       }, []);
 
-    context.log(commandsArr);
 
     // This functionality has to be implemented in upcoming features. If no commands are found, then the bot give a list of commands that can be used. in the PR comments.
-    if (commandsArr.length === 0) {
-      return context.octokit.issues.createComment(
-        context.issue({
-          body: `To execute commands, please add the following commands in the comments: \n\n - /execute \n - /explain`,
-        })
-      );
-    }
+    // if (commandsArr.length === 0) {
+    //   return context.octokit.issues.createComment(
+    //     context.issue({
+    //       body: `To execute commands, please add the following commands in the comments: \n\n - /execute \n - /explain`,
+    //     })
+    //   );
+    // }
 
     // Execute all commands and post the result in the PR comments one by one.
     commandsArr.forEach(async (command) => {
@@ -85,10 +87,13 @@ function triggerPR(app) {
     }
 
     if (command === "explain") {
-      const responseFromLLM = await createPrompt({
-        numberOfCommits: files.data.length,
-        patchesArray: files.data.map((file) => file.patch),
-      });
+      // Uncomment this line to see the files data 
+      // context.log(`files ${files.data.map((file) => file.patch).join(" ")}}`)
+
+      const promptString = await getOptmizedPrompt(files, context);
+      context.log(`promptString ${promptString}`);
+      const responseFromLLM = await createPrompt(promptString);
+      context.log(`responseFromLLM ${responseFromLLM}`);
 
       const message = responseFromLLM.message;
       const content = message["content"];
