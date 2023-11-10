@@ -1,6 +1,6 @@
 # codemate-assignment
 
-> A GitHub App built with [Probot](https://github.com/probot/probot) that A Probot app
+> PR of Testing Repo: https://github.com/Mukul1312/codemate-assignment-testing-repo/pulls
 
 ## Setup
 
@@ -12,13 +12,21 @@ npm install
 npm run start
 ```
 
-## Demo
-https://github.com/Mukul1312/codemate-assignment/assets/84818958/67975de1-df56-42ca-b14d-02efe4ca7d06
+## Updates in this version:
+ - [ ] /explain commands are detectable from the commit message
+ - [ ] Improved commenting by the bot in PR by adding LLM response error handling and delayed response.
+ - [ ] Refactored code of index.js 
+    - GitHub API logic in api/github file
+    - utils folder for storing utility functions like getCommand.
+
+
+## Updated Demo
+https://github.com/Mukul1312/codemate-assignment/assets/84818958/8ad2c41e-7a8b-43e1-a6d0-95d295dee2eb
 
 ## Summary Report
 It was quite an amazing experience to integrate the AI Tools with the GitHub app since I was new to webhooks and Probot, AI.
 
-### Current Functionality Implemented:
+### Functionality in main:
 /explain the command working when put in the description of PR Creation.
 
 ### Approach:
@@ -31,6 +39,3 @@ There are not many articles online for creating the tutorial. It reconfirms that
 ### Suggestion:
 The article provided as a reference in PFA for creating the first GitHub app requires a paid subscription. So, I've taken a reference from this article. 
 https://dev.to/github/developing-my-first-github-app-with-probot-3g0p 
-
-### Side note
-I will still work on this project to implement the PISTON API. Hope that my updated version after the deadline will be considerable.
