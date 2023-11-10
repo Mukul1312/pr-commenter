@@ -2,6 +2,9 @@
 
 > A GitHub App built with [Probot](https://github.com/probot/probot) that A Probot app
 
+## Important Update
+The Updated Version (Post Deadline) of this assignment can be found in ["version-updated"](https://github.com/Mukul1312/codemate-assignment/tree/updated-version) branch
+
 ## Setup
 
 ```sh
