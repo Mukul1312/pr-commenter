@@ -1,9 +1,10 @@
-# codemate-assignment
+# PR-Commenter
 
 > A GitHub App built with [Probot](https://github.com/probot/probot) that A Probot app
 
-## Important Update
-The Updated Version (Post Deadline) of this assignment can be found in ["version-updated"](https://github.com/Mukul1312/codemate-assignment/tree/updated-version) branch
+
+## Inspiration
+Derived inspiration from an assignment given by a company Codemate. Thus, Forward to launch it for the public use case.
 
 ## Setup
 
@@ -16,7 +17,7 @@ npm run start
 ```
 
 ## Demo
-https://github.com/Mukul1312/codemate-assignment/assets/84818958/67975de1-df56-42ca-b14d-02efe4ca7d06
+https://github.com/Mukul1312/pr-commenter/assets/84818958/67975de1-df56-42ca-b14d-02efe4ca7d06
 
 ## Summary Report
 It was quite an amazing experience to integrate the AI Tools with the GitHub app since I was new to webhooks and Probot, AI.
